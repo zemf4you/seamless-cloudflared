@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  server:
+    image: nginx:latest
+    volumes:
+      - ./html:/usr/share/nginx/html
+    expose:
+      - 80
+    depends_on:
+      - tunnelling
+
+  tunnelling:
+    env_file: .env
+    build: cloudflared
+    restart: always
+    environment:
+      - TUNNEL_ORIGIN_CERT=/root/.cloudflared/cert.pem
+      - TUNNEL_NAME=${DOMAIN}
+      - TUNNEL_HOSTNAME=${DOMAIN}
+      - TUNNEL_URL=server:80
+    volumes:
+      - ~/.cloudflared:/root/.cloudflared/
